@@ -5,6 +5,16 @@
 #include "cards.h"
 #include <QObject>
 
+/******************************************************************************
+ *
+ * @file       player.h
+ * @brief      玩家类基类
+ *
+ * @author     badwoman
+ * @date       2026/02/05
+ * @history
+ *****************************************************************************/
+
 class Player : public QObject
 {
     Q_OBJECT
