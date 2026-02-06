@@ -144,8 +144,6 @@ void GameControl::becomeLord(Player *player)
 
 
 
-
-
 void GameControl::clearPlayerScore()
 {
     m_robotLeft->setScore(0);

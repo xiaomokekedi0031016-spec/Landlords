@@ -86,7 +86,9 @@ public:
     virtual void thinkPlayHand();//虚函数,考虑出牌
 
 signals:
-
+    //通知已经发牌了
+    void notifyPickCards(Player* player, const Cards& cards);
+    //通知叫地主了
 
 protected:
     int m_score = 0;//玩家分数

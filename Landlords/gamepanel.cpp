@@ -4,6 +4,7 @@
 
 #include <QPainter>
 #include <QRandomGenerator>
+#include <QTimer>
 
 GamePanel::GamePanel(QWidget *parent)
     : QMainWindow(parent)
@@ -35,6 +36,10 @@ GamePanel::GamePanel(QWidget *parent)
 
     // 8. 扑克牌场景初始化
     initGameScene();
+
+    //定时器实例化
+    m_timer = new QTimer(this);
+    connect(m_timer, &QTimer::timeout, this, &GamePanel::onDispatchCard);
 }
 
 GamePanel::~GamePanel()
@@ -60,6 +65,10 @@ void GamePanel::gameControlInit()
     m_playerList << leftRobot << rightRobot << user;
 
     //todo...
+    //处理玩家发射出的信号(用户在发牌阶段存储牌 >> 更新分发的扑克牌在窗口的显示)
+    connect(leftRobot, &Player::notifyPickCards, this, &GamePanel::disposeCard);
+    connect(rightRobot, &Player::notifyPickCards, this, &GamePanel::disposeCard);
+    connect(user, &Player::notifyPickCards, this, &GamePanel::disposeCard);
 }
 
 void GamePanel::updatePlayerScore()
@@ -117,7 +126,17 @@ void GamePanel::initButtonsGroup()
 {
     ui->btnGroup->initButtons();
     ui->btnGroup->selectPanel(ButtonGroup::Start);
-    connect(ui->btnGroup, &ButtonGroup::startGame, this, [=](){});
+    connect(ui->btnGroup, &ButtonGroup::startGame, this, [=](){
+        //界面的初始化
+        ui->btnGroup->selectPanel(ButtonGroup::Empty);
+        m_gameCtl->clearPlayerScore();
+        updatePlayerScore();
+        //修改游戏的状态 >> 发牌
+        gameStatusPrecess(GameControl::DispatchCard);
+        //放bgm
+        //todo...
+
+    });
     connect(ui->btnGroup, &ButtonGroup::playHand, this, [=](){});
     connect(ui->btnGroup, &ButtonGroup::pass, this, [=](){});
     connect(ui->btnGroup, &ButtonGroup::betPoint, this, [=](){});
@@ -204,5 +223,172 @@ void GamePanel::initGameScene()
     {
         m_last3Card[i]->move(base + (m_cardSize.width() + 10) * i, 20);
     }
+}
+
+
+
+void GamePanel::gameStatusPrecess(GameControl::GameStatus status)
+{
+    //记录游戏状态
+    m_gameStatus = status;
+    //处理游戏状态
+    switch(status){
+    case GameControl::DispatchCard:
+        startDispatchCard();
+        break;
+    case GameControl::CallingLord:
+        break;
+    case GameControl::PlayingHand:
+        break;
+    default:
+        break;
+    }
+}
+
+
+
+void GamePanel::startDispatchCard()
+{
+    // 重置每张卡牌的属性
+    for(auto it = m_cardMap.begin(); it!= m_cardMap.end(); ++it)
+    {
+        it.value()->setSeclected(false);
+        it.value()->setFrontSide(true);
+        it.value()->hide();
+    }
+    // 隐藏三张底牌
+    for(int i=0; i<m_last3Card.size(); ++i)
+    {
+        m_last3Card.at(i)->hide();
+    }
+    // 重置玩家的窗口上下文信息(初始化)
+    int index = m_playerList.indexOf(m_gameCtl->getUserPlayer());
+    for(int i=0; i<m_playerList.size(); ++i)
+    {
+        m_contextMap[m_playerList.at(i)].lastCards.clear();
+        m_contextMap[m_playerList.at(i)].info->hide();
+        m_contextMap[m_playerList.at(i)].roleImg->hide();
+        m_contextMap[m_playerList.at(i)].isFrontSide = i==index ? true : false;
+    }
+    // 重置所有玩家的卡牌数据
+    m_gameCtl->resetCardData();
+    // 显示底牌
+    m_baseCard->show();
+    // 隐藏按钮面板
+    ui->btnGroup->selectPanel(ButtonGroup::Empty);
+    // 启动定时器
+    m_timer->start(10);
+    // 播放背景音乐
+}
+
+void GamePanel::onDispatchCard()
+{
+    //记录扑克牌的位置
+    static int curMovePos = 0;
+    //当前玩家
+    Player* curPlayer = m_gameCtl->getCurrentPlayer();
+    if(curMovePos >=100){
+        //给玩家发一张发牌
+        Card card = m_gameCtl->takeOneCard();
+        curPlayer->storeDispatchCard(card);
+        //切换玩家
+        m_gameCtl->setCurrentPlayer(curPlayer->getNextPlayer());
+        curMovePos = 0;
+        //发牌动画
+        cardMoveStep(curPlayer, curMovePos);
+        //判断牌是否发完了
+        if(m_gameCtl->getSurplusCards().cardCount() == 3){
+            // 终止定时器
+            m_timer->stop();
+            // 切换游戏状态
+            gameStatusPrecess(GameControl::CallingLord);
+            //终止发牌音乐的播放
+            //todo...
+            return;
+        }
+    }
+    //移动扑克牌(通过定时器实现的动画效果)
+    cardMoveStep(curPlayer, curMovePos);
+    curMovePos += 15;
+}
+
+
+
+void GamePanel::cardMoveStep(Player *player, int curPos)
+{
+    //得到每个玩家的扑克牌展示区域
+    QRect cardRect = m_contextMap[player].cardRect;
+    // 每个玩家的单元步长
+    const int unit[] = {
+        (m_baseCardPos.x() - cardRect.right()) / 100,
+        (cardRect.left() - m_baseCardPos.x()) / 100,
+        (cardRect.top() - m_baseCardPos.y()) / 100
+    };
+    // 每次窗口移动的时候每个玩家对应的牌的时时坐标位置
+    QPoint pos[] = {
+            QPoint(m_baseCardPos.x() - curPos * unit[0], m_baseCardPos.y()),
+            QPoint(m_baseCardPos.x() + curPos * unit[1], m_baseCardPos.y()),
+            QPoint(m_baseCardPos.x(), m_baseCardPos.y() + curPos * unit[2]),
+    };
+    //移动扑克牌窗口
+    int index = m_playerList.indexOf(player);
+    m_moveCard->move(pos[index]);
+
+    //临界状态
+    if(curPos == 0)
+    {
+        m_moveCard->show();
+    }
+    if(curPos == 100)
+    {
+        m_moveCard->hide();
+    }
+}
+
+
+
+void GamePanel::disposeCard(Player *player, const Cards &cards)
+{
+    Cards& myCard = const_cast<Cards&>(cards);
+    CardList list = myCard.toCardList();
+    for(int i=0; i<list.size(); ++i)
+    {
+        CardPanel* panel = m_cardMap[list.at(i)];
+        panel->setOwner(player);
+    }
+    //更新扑克牌在窗口中的显示
+    updatePlayerCards(player);
+}
+
+
+void GamePanel::updatePlayerCards(Player *player)
+{
+    Cards cards = player->getCards();
+    CardList list = cards.toCardList();
+    //取出展示扑克牌的区域
+    int cardSpace = 20;
+    QRect cardsRect = m_contextMap[player].cardRect;//获取玩家扑克牌的展示区域
+    for(int i = 0; i < list.size(); ++i){
+        CardPanel* panel = m_cardMap[list.at(i)];
+        panel->show();
+        panel->raise();
+        panel->setFrontSide(m_contextMap[player].isFrontSide);
+        if(m_contextMap[player].align == Horizontal){
+            //将牌居中显示(牌是堆叠在一起的)
+            int leftX = cardsRect.left() + (cardsRect.width() - (list.size() - 1) * cardSpace - panel->width()) / 2;
+            int topY = cardsRect.top() + (cardsRect.height() - m_cardSize.height()) / 2;
+            if(panel->isSelected()){
+                topY -= 10;
+            }
+            panel->move(leftX + cardSpace * i, topY);
+
+        }else{
+            int leftX = cardsRect.left() + (cardsRect.width() - m_cardSize.width()) / 2;
+            int topY = cardsRect.top() + (cardsRect.height() - (list.size() - 1) * cardSpace - panel->height()) / 2;
+            panel->move(leftX, topY + i * cardSpace);
+        }
+    }
+    //显示玩家打出的牌
+    // 得到当前玩家的出牌区域以及本轮打出的牌
 }
 

@@ -108,12 +108,16 @@ void Player::storeDispatchCard(const Card &card)
 {
     m_cards.add(card);
     //todo...
+    Cards cs;
+    cs.add(card);
+    emit notifyPickCards(this, cs);
 }
 
 void Player::storeDispatchCard(const Cards &cards)
 {
     m_cards.add(cards);
     //todo...
+    emit notifyPickCards(this, cards);
 }
 
 Cards Player::getCards()

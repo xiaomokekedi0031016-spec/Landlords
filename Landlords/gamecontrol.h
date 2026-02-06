@@ -24,9 +24,9 @@ public:
     // 游戏状态
     enum GameStatus
     {
-        DispatchCard,
-        CallingLord,
-        PlayingHand
+        DispatchCard,//发牌
+        CallingLord,//叫地主
+        PlayingHand//出牌
     };
     // 玩家状态
     enum PlayerStatus

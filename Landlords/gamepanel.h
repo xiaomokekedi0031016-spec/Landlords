@@ -6,6 +6,7 @@
 #include <QLabel>
 #include <QMainWindow>
 #include <QMap>
+#include <QTimer>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -34,14 +35,27 @@ public:
     void initPlayerContext();
     // 初始化游戏场景
     void initGameScene();
+    // 处理游戏的状态
+    void gameStatusPrecess(GameControl::GameStatus status);
+    // 发牌
+    void startDispatchCard();
+    //移动扑克牌
+    void cardMoveStep(Player* player, int curPos);
+    //处理分发得到的扑克牌
+    void disposeCard(Player* player, const Cards& cards);
+    // 更新扑克牌在窗口中的显示
+    void updatePlayerCards(Player* player);
 
+
+    //定时器的处理动作
+    void onDispatchCard();
 
 protected:
     void paintEvent(QPaintEvent* ev);
 
 private:
     enum CardAlign{Horizontal, Vertical};
-    struct PlayerContext
+    struct PlayerContext//玩家的上下文环境
     {
         // 1. 玩家扑克牌显示的区域
         QRect cardRect;
@@ -71,6 +85,9 @@ private:
     CardPanel* m_moveCard;//发牌过程中移动的扑克牌
     QVector<CardPanel*> m_last3Card;//最后的三张底牌
     QPoint m_baseCardPos;//发牌区的扑克牌位置
+    GameControl::GameStatus m_gameStatus;//当前游戏状态
+    QTimer* m_timer;//定时器
+
 
 };
 #endif // GAMEPANEL_H
