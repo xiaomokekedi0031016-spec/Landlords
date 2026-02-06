@@ -3,6 +3,16 @@
 
 #include <QPushButton>
 
+/******************************************************************************
+ *
+ * @file       mybutton.h
+ * @brief      自定义的按钮
+ *
+ * @author     badwoman
+ * @date       2026/02/06
+ * @history
+ *****************************************************************************/
+
 class MyButton : public QPushButton
 {
     Q_OBJECT
