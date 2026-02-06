@@ -32,6 +32,9 @@ GamePanel::GamePanel(QWidget *parent)
 
     // 7. 初始化玩家在窗口中的上下文环境
     initPlayerContext();
+
+    // 8. 扑克牌场景初始化
+    initGameScene();
 }
 
 GamePanel::~GamePanel()
@@ -72,7 +75,7 @@ void GamePanel::updatePlayerScore()
 void GamePanel::initCardMap()
 {
     //1.背面图
-    QPixmap pixmap(":/images/cards.png");
+    QPixmap pixmap(":/images/card.png");
     //2.计算每张牌的大小
     m_cardSize.setWidth(pixmap.width() / 13);
     m_cardSize.setHeight(pixmap.height() / 5);
@@ -169,6 +172,37 @@ void GamePanel::initPlayerContext()
         context.roleImg->hide();
         context.roleImg->move(roleImgPos[i]);
         m_contextMap.insert(m_playerList.at(i), context);
+    }
+}
+
+
+void GamePanel::initGameScene()
+{
+    // 1. 发牌区的扑克牌
+    m_baseCard = new CardPanel(this);
+    m_baseCard->setImage(m_cardBackImg, m_cardBackImg);
+    // 2. 发牌过程中移动的扑克牌
+    m_moveCard = new CardPanel(this);
+    m_moveCard->setImage(m_cardBackImg, m_cardBackImg);
+    // 3. 最后的三张底牌(用于窗口的显示)
+    for(int i=0; i<3; ++i)
+    {
+        CardPanel* panel = new CardPanel(this);
+        panel->setImage(m_cardBackImg, m_cardBackImg);
+        m_last3Card.push_back(panel);
+        panel->hide();
+    }
+    // 设置发牌区和移动扑克牌的起始位置
+    m_baseCardPos = QPoint((width() - m_cardSize.width()) / 2,
+                           height() / 2 - 100);
+    m_baseCard->move(m_baseCardPos);
+    m_moveCard->move(m_baseCardPos);
+
+    //设置三张底牌的位置
+    int base = (width() - 3 * m_cardSize.width() - 2 * 10) / 2;
+    for(int i=0; i<3; ++i)
+    {
+        m_last3Card[i]->move(base + (m_cardSize.width() + 10) * i, 20);
     }
 }
 

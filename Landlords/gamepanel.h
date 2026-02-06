@@ -32,6 +32,8 @@ public:
     void initButtonsGroup();
     // 初始化玩家在窗口中的上下文环境
     void initPlayerContext();
+    // 初始化游戏场景
+    void initGameScene();
 
 
 protected:
@@ -58,14 +60,17 @@ private:
     };
 
     Ui::GamePanel *ui;
-    QPixmap m_bkImage;//背景图
+    QPixmap m_bkImage;//背景图(游戏的)
     GameControl* m_gameCtl;//游戏控制类对象
     QVector<Player*> m_playerList;//玩家列表
     QSize m_cardSize;//单张扑克牌大小
     QPixmap m_cardBackImg;//扑克牌背面图片
     QMap<Card, CardPanel*> m_cardMap;//卡牌和卡牌面板的映射关系
     QMap<Player*, PlayerContext> m_contextMap;//玩家和玩家上下文环境的映射关系
-
+    CardPanel* m_baseCard;//发牌区的扑克牌
+    CardPanel* m_moveCard;//发牌过程中移动的扑克牌
+    QVector<CardPanel*> m_last3Card;//最后的三张底牌
+    QPoint m_baseCardPos;//发牌区的扑克牌位置
 
 };
 #endif // GAMEPANEL_H
