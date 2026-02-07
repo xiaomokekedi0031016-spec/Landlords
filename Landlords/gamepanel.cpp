@@ -69,6 +69,9 @@ void GamePanel::gameControlInit()
     connect(leftRobot, &Player::notifyPickCards, this, &GamePanel::disposeCard);
     connect(rightRobot, &Player::notifyPickCards, this, &GamePanel::disposeCard);
     connect(user, &Player::notifyPickCards, this, &GamePanel::disposeCard);
+
+    connect(m_gameCtl, &GameControl::playerStatusChanged, this, &GamePanel::onPlayerStatusChanged);
+    connect(m_gameCtl, &GameControl::notifyGrabLordBet, this, &GamePanel::onGrabLordBet);
 }
 
 void GamePanel::updatePlayerScore()
@@ -139,7 +142,10 @@ void GamePanel::initButtonsGroup()
     });
     connect(ui->btnGroup, &ButtonGroup::playHand, this, [=](){});
     connect(ui->btnGroup, &ButtonGroup::pass, this, [=](){});
-    connect(ui->btnGroup, &ButtonGroup::betPoint, this, [=](){});
+    connect(ui->btnGroup, &ButtonGroup::betPoint, this, [=](int bet){
+        m_gameCtl->getUserPlayer()->grabLordBet(bet);
+        ui->btnGroup->selectPanel(ButtonGroup::Empty);
+    });
 }
 
 
@@ -237,7 +243,19 @@ void GamePanel::gameStatusPrecess(GameControl::GameStatus status)
         startDispatchCard();
         break;
     case GameControl::CallingLord:
+    {//case语句定义变量需要加{}
+        //取出底牌数据
+        CardList last3Card = m_gameCtl->getSurplusCards().toCardList();
+        //给底牌窗口设置图片
+        for(int i=0; i<last3Card.size(); ++i){
+            QPixmap front = m_cardMap[last3Card.at(i)]->getImage();
+            m_last3Card[i]->setImage(front, m_cardBackImg);
+            m_last3Card[i]->hide();
+        }
+        //开始叫地主
+        m_gameCtl->startLordCard();
         break;
+    }
     case GameControl::PlayingHand:
         break;
     default:
@@ -390,5 +408,51 @@ void GamePanel::updatePlayerCards(Player *player)
     }
     //显示玩家打出的牌
     // 得到当前玩家的出牌区域以及本轮打出的牌
+}
+
+
+
+void GamePanel::onPlayerStatusChanged(Player *player, GameControl::PlayerStatus status)
+{
+    switch(status){
+    case GameControl::ThinkingForCallLord:
+        if(player == m_gameCtl->getUserPlayer())
+        {
+            ui->btnGroup->selectPanel(ButtonGroup::CallLord, m_gameCtl->getPlayerMaxBet());
+        }
+        break;
+    case GameControl::ThinkingForPlayHand:
+        break;
+    case GameControl::Winning:
+        break;
+    default:
+        break;
+    }
+}
+
+void GamePanel::onGrabLordBet(Player *player, int bet, bool flag)
+{
+    //显示抢地主的信息提示
+    PlayerContext context = m_contextMap[player];
+    if(bet == 0)
+    {
+        context.info->setPixmap(QPixmap(":/images/buqinag.png"));
+    }
+    else
+    {
+        if(flag)
+        {
+            context.info->setPixmap(QPixmap(":/images/jiaodizhu.png"));
+        }
+        else
+        {
+            context.info->setPixmap(QPixmap(":/images/qiangdizhu.png"));
+        }
+        // 显示叫地主的分数
+        //todo..
+    }
+     context.info->show();//显示提示信息
+    //播放bgm
+    //todo..
 }
 

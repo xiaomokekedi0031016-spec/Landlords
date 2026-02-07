@@ -15,6 +15,23 @@
  * @history
  *****************************************************************************/
 
+//叫地主记录
+struct BetRecord
+{
+    BetRecord()
+    {
+        reset();
+    }
+    void reset()
+    {
+        player = nullptr;
+        bet = 0;
+        times = 0;
+    }
+    Player* player;
+    int bet;
+    int times;  // 第几次叫地主
+};
 
 class GameControl : public QObject
 {
@@ -60,6 +77,8 @@ public:
     Cards getSurplusCards();
     //当前游戏结束，重置牌数据
     void resetCardData();
+    //得到玩家下注的最高分数
+    int getPlayerMaxBet();
 
 
     // 准备叫地主 >> 游戏正式开始
@@ -68,6 +87,7 @@ public:
     void becomeLord(Player *player);
 
     // 处理叫地主
+    void onGrabBet(Player* player, int bet);
     // 处理出牌
 
     // 清空所有玩家的得分
@@ -75,7 +95,12 @@ public:
 
 
 signals:
-
+    //玩家状态改变
+    void playerStatusChanged(Player* player, PlayerStatus status);
+    //通知玩家抢地主了
+    void notifyGrabLordBet(Player* player, int bet, bool flag);
+    // 游戏状态变化
+    void gameStatusChanged(GameStatus status);
 
 private:
     //左侧和右侧机器人
@@ -90,6 +115,8 @@ private:
     Cards m_pendCards;
     //存储所有扑克牌
     Cards m_allCards;
+    //叫地主记录(叫的分数、玩家、序列)
+    BetRecord m_betRecord;
 };
 
 #endif // GAMECONTROL_H

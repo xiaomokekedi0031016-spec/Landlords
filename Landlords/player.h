@@ -88,7 +88,8 @@ public:
 signals:
     //通知已经发牌了
     void notifyPickCards(Player* player, const Cards& cards);
-    //通知叫地主了
+    // 通知已经叫地主下注
+    void notifyGrabLordBet(Player* player, int bet);
 
 protected:
     int m_score = 0;//玩家分数
