@@ -18,6 +18,14 @@ void Cards::add(const Cards &cards)
     m_cards.unite(cards.m_cards);//并集
 }
 
+void Cards::add(const QVector<Cards> &cards)
+{
+    for(int i=0; i<cards.count(); ++i)
+    {
+        add(cards.at(i));
+    }
+}
+
 Cards &Cards::operator <<(const Card &card)
 {
     add(card);
@@ -119,5 +127,30 @@ CardList Cards::toCardList(SortType type)
         std::sort(list.begin(), list.end(), greaterSort);
     }
     return list;
+}
+
+
+
+void Cards::remove(const QVector<Cards> &cards)
+{
+    for(int i=0; i<cards.size(); ++i)
+    {
+        remove(cards[i]);
+    }
+}
+
+
+
+int Cards::pointCount(Card::CardPoint point)
+{
+    int count = 0;
+    for(auto it = m_cards.begin(); it!=m_cards.end(); ++it)
+    {
+        if(it->point() == point)
+        {
+            count++;
+        }
+    }
+    return count;
 }
 

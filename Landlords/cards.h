@@ -24,12 +24,14 @@ public:
     // 添加扑克牌
     void add(const Card& card);//单个
     void add(const Cards& cards);//多个
+    void add(const QVector<Cards>& cards);
     // 一次性插入多个数据 (操作符重载 << )
     Cards& operator <<(const Card& card);
     Cards& operator <<(const Cards& cards);
     // 删除扑克牌
     void remove(const Card& card);
     void remove(const Cards& cards);
+    void remove(const QVector<Cards>& cards);
     // 扑克牌的数量
     int cardCount();
     // 是否为空

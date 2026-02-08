@@ -45,7 +45,7 @@ public:
         Card_2,
         Card_SJ,    // small joker
         Card_BJ,     // big joker
-        Card_End
+        Card_End//16
     };
 
     Card();
