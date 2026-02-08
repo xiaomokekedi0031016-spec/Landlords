@@ -5,6 +5,7 @@
 #include <QPainter>
 #include <QRandomGenerator>
 #include <QTimer>
+#include <qDebug>
 
 GamePanel::GamePanel(QWidget *parent)
     : QMainWindow(parent)
@@ -433,6 +434,7 @@ void GamePanel::onPlayerStatusChanged(Player *player, GameControl::PlayerStatus 
 
 void GamePanel::onGrabLordBet(Player *player, int bet, bool flag)
 {
+    // qDebug()<<"11111111";
     //显示抢地主的信息提示
     PlayerContext context = m_contextMap[player];
     if(bet == 0)
