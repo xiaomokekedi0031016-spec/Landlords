@@ -1,6 +1,7 @@
 #ifndef GAMEPANEL_H
 #define GAMEPANEL_H
 
+#include "animationwindow.h"
 #include "cardpanel.h"
 #include "gamecontrol.h"
 #include <QLabel>
@@ -21,6 +22,10 @@ class GamePanel : public QMainWindow
 public:
     GamePanel(QWidget *parent = nullptr);
     ~GamePanel();
+
+    // 特效动画类型
+    enum AnimationType{ShunZi, LianDui, Plane, JokerBomb, Bomb, Bet};
+
     // 初始化游戏控制类信息
     void gameControlInit();
     // 更新分数面板的分数
@@ -53,6 +58,9 @@ public:
     void onPlayerStatusChanged(Player* player, GameControl::PlayerStatus status);
     //处理玩家抢地主
     void onGrabLordBet(Player* player, int bet, bool flag);
+
+    //显示特效动画
+    void showAnimation(AnimationType type, int bet = 0);
 
 protected:
     void paintEvent(QPaintEvent* ev);
@@ -91,6 +99,7 @@ private:
     QPoint m_baseCardPos;//发牌区的扑克牌位置
     GameControl::GameStatus m_gameStatus;//当前游戏状态
     QTimer* m_timer;//定时器
+    AnimationWindow* m_animation;//动画窗口
 
 
 };

@@ -42,7 +42,8 @@ void GameControl::playerInit()
     m_robotRight->setNextPlayer(m_robotLeft);
 
     //指定当前玩家
-    m_currPlayer = m_user;
+    // m_currPlayer = m_user;
+    m_currPlayer = m_robotLeft;
 
     //todo...
     //处理玩家发射出的信号(用户在叫地主阶段叫地主了 >> 更新信息提示)

@@ -74,7 +74,7 @@ void Robot::thinkCallLord()
     {
         grabLordBet(2);
     }
-    else if(weight < 18 && weight >= 10)
+    else if(weight < 18 && weight >= 5)
     {
         grabLordBet(1);
     }
