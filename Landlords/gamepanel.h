@@ -9,6 +9,16 @@
 #include <QMap>
 #include <QTimer>
 
+/******************************************************************************
+ *
+ * @file       gamepanel.h
+ * @brief      游戏主窗口类
+ *
+ * @author     badwoman
+ * @date       2026/02/10
+ * @history
+ *****************************************************************************/
+
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class GamePanel;
@@ -64,6 +74,10 @@ public:
     void onDisposePlayHand(Player* player, const Cards& cards);
     // 处理玩家选牌
     void onCardSelected(Qt::MouseButton button);
+    // 处理用户玩家出牌
+    void onUserPlayHand();
+    // 用户玩家放弃出牌
+    void onUserPass();
 
     //显示特效动画
     void showAnimation(AnimationType type, int bet = 0);

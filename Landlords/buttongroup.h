@@ -7,6 +7,16 @@ namespace Ui {
 class ButtonGroup;
 }
 
+/******************************************************************************
+ *
+ * @file       buttongroup.h
+ * @brief      按钮组，根据游戏状态的不同，显示不同的按钮
+ *
+ * @author     badwoman
+ * @date       2026/02/10
+ * @history
+ *****************************************************************************/
+
 class ButtonGroup : public QWidget
 {
     Q_OBJECT

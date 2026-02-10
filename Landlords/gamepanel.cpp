@@ -147,8 +147,8 @@ void GamePanel::initButtonsGroup()
         //todo...
 
     });
-    connect(ui->btnGroup, &ButtonGroup::playHand, this, [=](){});
-    connect(ui->btnGroup, &ButtonGroup::pass, this, [=](){});
+    connect(ui->btnGroup, &ButtonGroup::playHand, this, &GamePanel::onUserPlayHand);
+    connect(ui->btnGroup, &ButtonGroup::pass, this, &GamePanel::onUserPass);
     connect(ui->btnGroup, &ButtonGroup::betPoint, this, [=](int bet){
         m_gameCtl->getUserPlayer()->grabLordBet(bet);
         ui->btnGroup->selectPanel(ButtonGroup::Empty);
@@ -745,7 +745,7 @@ void GamePanel::onCardSelected(Qt::MouseButton button)
     else if(button == Qt::RightButton)
     {
         // 调用出牌按钮的槽函数
-        //onUserPlayHand();
+        onUserPlayHand();
     }
 }
 
@@ -776,4 +776,79 @@ void GamePanel::mouseMoveEvent(QMouseEvent *ev)
     }
 }
 
+
+void GamePanel::onUserPlayHand()
+{
+    // 判断游戏状态
+    if(m_gameStatus != GameControl::PlayingHand)
+    {
+        return;
+    }
+    // 判断玩家是不是用户玩家
+    if(m_gameCtl->getCurrentPlayer() != m_gameCtl->getUserPlayer())
+    {
+        return;
+    }
+    // 判断要出的牌是否为空
+    if(m_selectCards.isEmpty())
+    {
+        return;
+    }
+    // 得到要打出的牌的牌型
+    Cards cs;
+    for(auto it = m_selectCards.begin(); it != m_selectCards.end(); ++it)
+    {
+        Card card = (*it)->getCard();
+        cs.add(card);
+    }
+    PlayHand hand(cs);
+    PlayHand::HandType type = hand.getHandType();
+    if(type == PlayHand::Hand_Unknown)
+    {
+        return;
+    }
+    // 判断当前玩家的牌能不能压住上一家的牌
+    if(m_gameCtl->getPendPlayer() != m_gameCtl->getUserPlayer())
+    {
+        Cards cards = m_gameCtl->getPendCards();
+        if(!hand.canBeat(PlayHand(cards)))
+        {
+            return;
+        }
+    }
+    //m_countDown->stopCountDown();
+    // 通过玩家对象出牌
+    m_gameCtl->getUserPlayer()->playHand(cs);
+    // 清空容器
+    m_selectCards.clear();
+}
+
+
+
+void GamePanel::onUserPass()
+{
+    // 判断是不是用户玩家
+    Player* curPlayer = m_gameCtl->getCurrentPlayer();
+    Player* userPlayer = m_gameCtl->getUserPlayer();
+    if(curPlayer != userPlayer)
+    {
+        return;
+    }
+    // 判断当前用户玩家是不是上一次出牌的玩家(可以不处理)
+    Player* pendPlayer = m_gameCtl->getPendPlayer();
+    if(pendPlayer == userPlayer || pendPlayer == nullptr)
+    {
+        return;
+    }
+    // 打出一个空的Cards对象
+    Cards empty;
+    userPlayer->playHand(empty);
+    for(auto it = m_selectCards.begin(); it != m_selectCards.end(); ++it)
+    {
+        (*it)->setSeclected(false);
+    }
+    m_selectCards.clear();
+    // 更新玩家待出牌区域的牌
+    updatePlayerCards(userPlayer);
+}
 

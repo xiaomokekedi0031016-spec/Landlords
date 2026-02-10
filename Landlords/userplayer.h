@@ -4,6 +4,16 @@
 #include "player.h"
 #include <QObject>
 
+/******************************************************************************
+ *
+ * @file       userplayer.h
+ * @brief      用户玩家类
+ *
+ * @author     badwoman
+ * @date       2026/02/10
+ * @history
+ *****************************************************************************/
+
 class UserPlayer : public Player
 {
     Q_OBJECT
