@@ -83,6 +83,8 @@ public:
     void showAnimation(AnimationType type, int bet = 0);
     //隐藏下一个玩家上轮打出的牌
     void hidePlayerDropCards(Player* player);
+    // 显示玩家的最终得分
+    void showEndingScorePanel();
 
 protected:
     void paintEvent(QPaintEvent* ev);

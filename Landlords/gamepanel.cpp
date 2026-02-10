@@ -1,10 +1,12 @@
 #include "cardpanel.h"
+#include "endingpanel.h"
 #include "gamepanel.h"
 #include "playhand.h"
 #include "ui_gamepanel.h"
 
 #include <QMouseEvent>
 #include <QPainter>
+#include <QPropertyAnimation>
 #include <QRandomGenerator>
 #include <QTimer>
 #include <qDebug>
@@ -526,6 +528,7 @@ void GamePanel::onPlayerStatusChanged(Player *player, GameControl::PlayerStatus 
         // 更新玩家的得分
         updatePlayerScore();
         m_gameCtl->setCurrentPlayer(player);
+        showEndingScorePanel();
         break;
     default:
         break;
@@ -850,5 +853,46 @@ void GamePanel::onUserPass()
     m_selectCards.clear();
     // 更新玩家待出牌区域的牌
     updatePlayerCards(userPlayer);
+}
+
+
+
+void GamePanel::showEndingScorePanel()
+{
+    bool islord = m_gameCtl->getUserPlayer()->getRole() == Player::Lord ? true : false;
+    bool isWin = m_gameCtl->getUserPlayer()->isWin();
+    EndingPanel* panel = new EndingPanel(islord, isWin, this);
+    panel->show();
+    panel->move((width() - panel->width()) / 2, -panel->height());
+    panel->setPlayerScore(m_gameCtl->getLeftRobot()->getScore(),
+                          m_gameCtl->getRightRobot()->getScore(),
+                          m_gameCtl->getUserPlayer()->getScore());
+    if(isWin){
+        //胜利的bgm
+    }
+    else{
+        //失败的bgm
+    }
+    QPropertyAnimation *animation = new QPropertyAnimation(panel, "geometry", this);
+    animation->setDuration(1500);//1.5s
+    // 设置窗口的运动曲线
+    animation->setEasingCurve(QEasingCurve(QEasingCurve::OutBounce));
+    animation->setStartValue(QRect(panel->x(), panel->y(),
+                                   panel->width(), panel->height()));
+    animation->setEndValue(QRect((width() - panel->width()) / 2,
+                                 (height() - panel->height()) / 2,
+                                 panel->width(), panel->height()));
+    // 播放动画效果
+    animation->start();
+    // 处理窗口信号
+    connect(panel, &EndingPanel::continueGame, this, [=]()
+            {
+                panel->close();
+                panel->deleteLater();
+                animation->deleteLater();
+                ui->btnGroup->selectPanel(ButtonGroup::Empty);
+                gameStatusPrecess(GameControl::DispatchCard);
+            });
+
 }
 
