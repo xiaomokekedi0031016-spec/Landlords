@@ -3,6 +3,8 @@
 #include <functional>
 
 Strategy::Strategy(Player *player, const Cards &cards)
+    :m_player(player),
+    m_cards(cards)
 {
 }
 

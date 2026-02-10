@@ -84,11 +84,12 @@ public:
     // 准备叫地主 >> 游戏正式开始
     void startLordCard();
     // 成为地主 >> 叫地主结束
-    void becomeLord(Player *player);
+    void becomeLord(Player *player, int bet);
 
     // 处理叫地主
     void onGrabBet(Player* player, int bet);
     // 处理出牌
+    void onPlayHand(Player *player, const Cards &card);
 
     // 清空所有玩家的得分
     void clearPlayerScore();
@@ -101,6 +102,10 @@ signals:
     void notifyGrabLordBet(Player* player, int bet, bool flag);
     // 游戏状态变化
     void gameStatusChanged(GameStatus status);
+    // 通知玩家出牌了
+    void notifyPlayHand(Player* player, const Cards& card);
+    //给玩家传递出牌数据
+    void pendingInfo(Player* player, const Cards& card);
 
 private:
     //左侧和右侧机器人
@@ -117,6 +122,8 @@ private:
     Cards m_allCards;
     //叫地主记录(叫的分数、玩家、序列)
     BetRecord m_betRecord;
+    //底分
+    int m_curBet = 0;
 };
 
 #endif // GAMECONTROL_H

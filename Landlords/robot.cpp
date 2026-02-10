@@ -1,6 +1,7 @@
 #include "robot.h"
 #include "strategy.h"
 #include "robotgraplord.h"
+#include "robotplayhand.h"
 #include <QDebug>
 
 
@@ -27,7 +28,13 @@ void Robot::prepareCallLord()
 
 void Robot::preparePlayHand()
 {
+    RobotPlayHand* subThread = new RobotPlayHand(this);
+    connect(subThread, &RobotGrapLord::finished, this, [=](){
+        qDebug() << "RobotPlayHand 子线程对象析构..." << ", Robot name: " << this->getName();
+        subThread->deleteLater();
+    });
 
+    subThread->start();
 }
 
 
@@ -45,6 +52,7 @@ void Robot::thinkCallLord()
     int weight = 0;
     Strategy st(this, m_cards);
     weight += st.getRangeCards(Card::Card_SJ, Card::Card_BJ).cardCount() * 6;
+
     QVector<Cards> optSeq = st.pickOptimalSeqSingles();
     weight += optSeq.size() * 5;
 
@@ -52,7 +60,6 @@ void Robot::thinkCallLord()
     weight += bombs.size() * 5;
 
     weight += m_cards.pointCount(Card::Card_2) * 3;
-
 
     Cards tmp = m_cards;
     tmp.remove(optSeq);
@@ -66,15 +73,15 @@ void Robot::thinkCallLord()
     QVector<Cards> pairs = Strategy(this, tmp).findCardsByCount(2);
     weight += pairs.size() * 1;
 
-    if(weight >= 22)
+    if(weight >= 16)
     {
         grabLordBet(3);
     }
-    else if(weight < 22 && weight >=18)
+    else if(weight < 16 && weight >=12)
     {
         grabLordBet(2);
     }
-    else if(weight < 18 && weight >= 5)
+    else if(weight < 12 && weight >= 6)
     {
         grabLordBet(1);
     }
@@ -82,12 +89,15 @@ void Robot::thinkCallLord()
     {
         grabLordBet(0);
     }
+
 }
 
 
 
 void Robot::thinkPlayHand()
 {
-
+    Strategy st(this, m_cards);
+    Cards cs = st.makeStrategy();
+    playHand(cs);
 }
 

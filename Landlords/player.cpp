@@ -1,4 +1,5 @@
 #include "player.h"
+#include <QDebug>
 
 Player::Player(QObject *parent) : QObject(parent)
 {
@@ -135,13 +136,14 @@ void Player::clearCards()
 
 void Player::playHand(const Cards &cards)
 {
-    m_cards.clear();
-    //todo...
+    m_cards.remove(cards);
+    emit notifyPlayHand(this, cards);
 }
 
 
 Player *Player::getPendPlayer()
 {
+    //qDebug()<<m_pendPlayer<<"!!!!!";
     return m_pendPlayer;
 }
 
