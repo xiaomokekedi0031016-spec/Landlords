@@ -22,7 +22,7 @@ void AnimationWindow::showBetScore(int bet)
         m_image.load(":/images/score3.png");
     }
     update();
-    QTimer::singleShot(2000, this, &AnimationWindow::hide);
+    QTimer::singleShot(1500, this, &AnimationWindow::hide);
 }
 
 

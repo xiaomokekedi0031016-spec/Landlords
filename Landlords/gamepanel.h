@@ -62,6 +62,8 @@ public:
     void onGrabLordBet(Player* player, int bet, bool flag);
     // 处理玩家的出牌
     void onDisposePlayHand(Player* player, const Cards& cards);
+    // 处理玩家选牌
+    void onCardSelected(Qt::MouseButton button);
 
     //显示特效动画
     void showAnimation(AnimationType type, int bet = 0);
@@ -70,6 +72,7 @@ public:
 
 protected:
     void paintEvent(QPaintEvent* ev);
+    void mouseMoveEvent(QMouseEvent* ev);
 
 private:
     enum CardAlign{Horizontal, Vertical};
@@ -106,7 +109,10 @@ private:
     GameControl::GameStatus m_gameStatus;//当前游戏状态
     QTimer* m_timer;//定时器
     AnimationWindow* m_animation;//动画窗口
-
+    CardPanel* m_curSelCard;//当前选中的扑克牌
+    QSet<CardPanel*> m_selectCards;//当前选中的扑克牌集合
+    QRect m_cardsRect;//玩家扑克牌的展示区域
+    QHash<CardPanel*, QRect> m_userCards;//当前用户玩家的扑克牌和扑克牌区域的映射关系
 
 };
 #endif // GAMEPANEL_H
