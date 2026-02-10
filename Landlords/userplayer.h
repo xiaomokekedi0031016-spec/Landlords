@@ -25,6 +25,7 @@ public:
     void preparePlayHand() override;
 
 signals:
+    void startCountDown();
 
 };
 

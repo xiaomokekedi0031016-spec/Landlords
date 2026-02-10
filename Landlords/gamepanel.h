@@ -3,6 +3,7 @@
 
 #include "animationwindow.h"
 #include "cardpanel.h"
+#include "countdown.h"
 #include "gamecontrol.h"
 #include <QLabel>
 #include <QMainWindow>
@@ -85,6 +86,8 @@ public:
     void hidePlayerDropCards(Player* player);
     // 显示玩家的最终得分
     void showEndingScorePanel();
+    // 初始化闹钟倒计时
+    void initCountDown();
 
 protected:
     void paintEvent(QPaintEvent* ev);
@@ -129,6 +132,6 @@ private:
     QSet<CardPanel*> m_selectCards;//当前选中的扑克牌集合
     QRect m_cardsRect;//玩家扑克牌的展示区域
     QHash<CardPanel*, QRect> m_userCards;//当前用户玩家的扑克牌和扑克牌区域的映射关系
-
+    CountDown* m_countDown;//倒计时闹钟
 };
 #endif // GAMEPANEL_H
