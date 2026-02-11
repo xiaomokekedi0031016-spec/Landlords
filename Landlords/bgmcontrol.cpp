@@ -231,11 +231,11 @@ void BGMControl::playLastMusic(BaoJing type, Player::Sex sex)
 
     if(sex == Player::Man)
     {
-        index = (type == _Last2) ? 0 : 1;
+        index = (type == _Last1) ? 0 : 1;
     }
     else
     {
-        index = (type == _Last2) ? 2 : 3;
+        index = (type == _Last1) ? 2 : 3;
     }
 
     QTimer::singleShot(1500, this, [=](){
