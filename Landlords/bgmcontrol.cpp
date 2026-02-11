@@ -7,14 +7,15 @@
 #include <QJsonObject>
 #include <QRandomGenerator>
 #include <QTimer>
+#include "player.h"
 
 BGMControl::BGMControl(QObject *parent) : QObject(parent)
 {
-    for(int i=0; i<5; ++i)
+    for(int i=0; i<6; ++i)
     {
         QMediaPlayer* player = new QMediaPlayer(this);
         QMediaPlaylist* list = new QMediaPlaylist(this);
-        if(i<2 || i == 4)
+        if(i<2 || i == 4 || i == 5)
         {
             // 单曲播放
             list->setPlaybackMode(QMediaPlaylist::CurrentItemOnce);
@@ -36,7 +37,7 @@ void BGMControl::initPlayList()
 {
     //QString<list>  ==  QStringList
     QStringList list;
-    list << "Man" << "Woman" << "BGM" << "Other" << "Ending";
+    list << "Man" << "Woman" << "BGM" << "Other" << "Ending" << "BaoJing";
 
     // 读json配置文件
     QFile file(":/conf/playList.json");
@@ -202,25 +203,47 @@ void BGMControl::playCardMusic(Cards cards, bool isFirst, RoleSex sex)
     }
 }
 
-void BGMControl::playLastMusic(CardType type, RoleSex sex)
+// void BGMControl::playLastMusic(CardType type, RoleSex sex)
+// {
+//     // 1. 玩家的性别
+//     int index = sex == Man ? 0 : 1;
+//     // 2. 找到播放列表
+//     QMediaPlaylist* list = m_lists[index];
+//     if(m_players[index]->state() == QMediaPlayer::StoppedState)
+//     {
+//         list->setCurrentIndex(type);
+//         m_players[index]->play();
+//     }
+//     else
+//     {
+//         QTimer::singleShot(1500, this, [=](){
+//             list->setCurrentIndex(type);
+//             m_players[index]->play();
+//         });
+//     }
+// }
+
+void BGMControl::playLastMusic(BaoJing type, Player::Sex sex)
 {
-    // 1. 玩家的性别
-    int index = sex == Man ? 0 : 1;
-    // 2. 找到播放列表
-    QMediaPlaylist* list = m_lists[index];
-    if(m_players[index]->state() == QMediaPlayer::StoppedState)
+    QMediaPlaylist* list = m_lists[5];
+
+    int index = 0;
+
+    if(sex == Player::Man)
     {
-        list->setCurrentIndex(type);
-        m_players[index]->play();
+        index = (type == _Last2) ? 0 : 1;
     }
     else
     {
-        QTimer::singleShot(1500, this, [=](){
-            list->setCurrentIndex(type);
-            m_players[index]->play();
-        });
+        index = (type == _Last2) ? 2 : 3;
     }
+
+    QTimer::singleShot(1500, this, [=](){
+        list->setCurrentIndex(index);
+        m_players[5]->play();
+    });
 }
+
 
 void BGMControl::playPassMusic(RoleSex sex)
 {
@@ -274,3 +297,7 @@ void BGMControl::playEndingMusic(bool isWin)
     }
     m_players[4]->play();
 }
+
+
+
+

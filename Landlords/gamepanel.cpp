@@ -528,6 +528,8 @@ void GamePanel::onPlayerStatusChanged(Player *player, GameControl::PlayerStatus 
         updatePlayerScore();
         m_gameCtl->setCurrentPlayer(player);
         showEndingScorePanel();
+        //todo...
+        ui->btnGroup->selectPanel(ButtonGroup::Empty);
         break;
     default:
         break;
@@ -651,6 +653,8 @@ void GamePanel::onDisposePlayHand(Player *player, const Cards &cards)
     updatePlayerCards(player);
     // 4. 播放提示音乐
     // 判断玩家剩余的牌的数量 >> 最后一张牌了注意哦
+
+    /*
     if(player->getCards().cardCount() == 2)
     {
         m_bgm->playLastMusic(BGMControl::Last2, (BGMControl::RoleSex)player->getSex());
@@ -658,6 +662,16 @@ void GamePanel::onDisposePlayHand(Player *player, const Cards &cards)
     else if(player->getCards().cardCount() == 1)
     {
         m_bgm->playLastMusic(BGMControl::Last1, (BGMControl::RoleSex)player->getSex());
+    }
+     */
+
+    if(player->getCards().cardCount() == 2)
+    {
+        m_bgm->playLastMusic(BGMControl::_Last2, player->getSex());
+    }
+    else if(player->getCards().cardCount() == 1)
+    {
+        m_bgm->playLastMusic(BGMControl::_Last1, player->getSex());
     }
 }
 

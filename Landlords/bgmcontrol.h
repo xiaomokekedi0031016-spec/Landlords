@@ -2,6 +2,7 @@
 #define BGMCONTROL_H
 
 #include "cards.h"
+#include "player.h"
 
 #include <QObject>
 #include <QMediaPlayer>
@@ -85,6 +86,11 @@ public:
         Last2           // 只剩2张牌
     };
 
+    enum BaoJing{
+        _Last1,          // 只剩1张牌
+        _Last2           // 只剩2张牌
+    };
+
     enum AssistMusic
     {
         Dispatch,   // 发牌
@@ -106,7 +112,8 @@ public:
     void playerRobLordMusic(int point, RoleSex sex, bool isFirst);
     // 3. 播放出牌的背景音乐
     void playCardMusic(Cards cards, bool isFirst, RoleSex sex);
-    void playLastMusic(CardType type, RoleSex sex);
+    // void playLastMusic(CardType type, RoleSex sex);
+    void playLastMusic(BaoJing type, Player::Sex sex);
     // 4. 播放不出牌的背景音乐
     void playPassMusic(RoleSex sex);
     // 5. 播放辅助音乐
@@ -117,7 +124,7 @@ public:
 
 signals:
 private:
-    // 0.man 1.woman 2.bgm 3.辅助音乐 4.结束音乐
+    // 0.man 1.woman 2.bgm 3.辅助音乐 4.结束音乐 5.报警
     QVector<QMediaPlayer*> m_players;
     QVector<QMediaPlaylist*> m_lists;
 };
