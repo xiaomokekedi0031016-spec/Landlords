@@ -2,6 +2,7 @@
 #define GAMEPANEL_H
 
 #include "animationwindow.h"
+#include "bgmcontrol.h"
 #include "cardpanel.h"
 #include "countdown.h"
 #include "gamecontrol.h"
@@ -133,5 +134,6 @@ private:
     QRect m_cardsRect;//玩家扑克牌的展示区域
     QHash<CardPanel*, QRect> m_userCards;//当前用户玩家的扑克牌和扑克牌区域的映射关系
     CountDown* m_countDown;//倒计时闹钟
+    BGMControl* m_bgm;//添加bgm
 };
 #endif // GAMEPANEL_H
